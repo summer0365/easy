@@ -25,14 +25,10 @@ public class ComponentScanBean {
 
 	public void handle(String... basePackages) throws Exception {
 		synchronized (this) {
-
 			Assert.notNull(basePackages, "basePackages is null");
 			for (String basePackage : basePackages) {
-				String packageSearchPath = EasyResource.CLASSPATH_ALL_URL_PREFIX
-						+ EasyUtils.convertClassNameToResourcePath(basePackage);
-
+				String packageSearchPath = EasyResource.CLASSPATH_ALL_URL_PREFIX + basePackage;
 				BeanHolder[] resBeanHolder = getResources(packageSearchPath);
-
 				for (BeanHolder bean : resBeanHolder) {
 					URL uri = bean.getUri();
 					// 得到协议的名称   
@@ -49,7 +45,22 @@ public class ComponentScanBean {
 		}
 	}
 
-	public static void findAndAddClassesInPackage(String basePackage,
+	public BeanHolder[] getResources(String locationPattern) throws IOException {
+		Assert.notNull(locationPattern, "Location pattern must not be null");
+		Set<BeanHolder> beanHolder = new LinkedHashSet<BeanHolder>(16);
+			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+			Enumeration<URL> dirs = classLoader.getResources("");
+			System.out.println("gogogo");
+			while (dirs.hasMoreElements()) {
+				
+				System.out.println(dirs.nextElement().toString());
+				
+				beanHolder.add(new BeanHolder(getCleanedUrl(dirs.nextElement(), dirs.nextElement().toString())));
+			}
+		return beanHolder.toArray(new BeanHolder[beanHolder.size()]);
+	}
+	
+	public void findAndAddClassesInPackage(String basePackage,
 			String filePath) throws ClassNotFoundException {
 
 		File dir = new File(basePackage);
@@ -97,22 +108,7 @@ public class ComponentScanBean {
 		}
 	}
 
-	public BeanHolder[] getResources(String locationPattern) throws IOException {
-		Assert.notNull(locationPattern, "Location pattern must not be null");
-		Set<BeanHolder> beanHolder = new LinkedHashSet<BeanHolder>(16);
-		if (locationPattern.startsWith(EasyResource.CLASSPATH_ALL_URL_PREFIX)) {
-			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-			Enumeration<URL> dirs = classLoader.getResources(locationPattern);
-
-			while (dirs.hasMoreElements()) {
-				beanHolder.add(new BeanHolder(getCleanedUrl(dirs.nextElement(), dirs.nextElement()
-						.toString())));
-			}
-		}
-		return beanHolder.toArray(new BeanHolder[beanHolder.size()]);
-	}
-
-	private URL getCleanedUrl(URL originalUrl,
+	private static URL getCleanedUrl(URL originalUrl,
 			String originalPath) {
 		try {
 			return new URL(StringUtils.cleanPath(originalPath));

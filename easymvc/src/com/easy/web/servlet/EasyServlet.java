@@ -13,7 +13,7 @@ public class EasyServlet extends HttpServlet {
 
 	public final void init() {
 
-		String basePackages = (String) getServletContext().getAttribute("easyaction");
+		String basePackages = (String) getServletContext().getInitParameter("easyaction");
 		ComponentScanBean sc = new ComponentScanBean();
 		try {
 			sc.handle(basePackages);
