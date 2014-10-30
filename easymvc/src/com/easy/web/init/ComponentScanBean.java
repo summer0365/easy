@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.easy.holder.BeanHolder;
 import com.easy.util.Assert;
-import com.easy.util.EasyResource;
 import com.easy.util.EasyUtils;
 import com.easy.util.StringUtils;
 import com.easy.web.annotation.EasyAction;
@@ -27,7 +26,7 @@ public class ComponentScanBean {
 		synchronized (this) {
 			Assert.notNull(basePackages, "basePackages is null");
 			for (String basePackage : basePackages) {
-				String packageSearchPath = EasyResource.CLASSPATH_ALL_URL_PREFIX + basePackage;
+				String packageSearchPath = EasyUtils.convertClassNameToResourcePath(basePackage);
 				BeanHolder[] resBeanHolder = getResources(packageSearchPath);
 				for (BeanHolder bean : resBeanHolder) {
 					URL uri = bean.getUri();
@@ -38,7 +37,7 @@ public class ComponentScanBean {
 						//("file类型的扫描");   
 						// 获取包的物理路径   
 						String filePath = URLDecoder.decode(uri.getFile(), "UTF-8");
-						findAndAddClassesInPackage(basePackage, filePath);
+						findAndAddClassesInPackage(packageSearchPath, filePath);
 					}
 				}
 			}
@@ -48,22 +47,22 @@ public class ComponentScanBean {
 	public BeanHolder[] getResources(String locationPattern) throws IOException {
 		Assert.notNull(locationPattern, "Location pattern must not be null");
 		Set<BeanHolder> beanHolder = new LinkedHashSet<BeanHolder>(16);
-			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-			Enumeration<URL> dirs = classLoader.getResources("");
-			System.out.println("gogogo");
-			while (dirs.hasMoreElements()) {
-				
-				System.out.println(dirs.nextElement().toString());
-				
-				beanHolder.add(new BeanHolder(getCleanedUrl(dirs.nextElement(), dirs.nextElement().toString())));
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		Enumeration<URL> dirs = classLoader.getResources(locationPattern);
+		while (dirs.hasMoreElements()) {
+			URL url = dirs.nextElement();
+			String protocol = url.getProtocol();
+			if ("file".equals(protocol)) {
+				beanHolder.add(new BeanHolder(getCleanedUrl(url, url.toString())));
 			}
+		}
 		return beanHolder.toArray(new BeanHolder[beanHolder.size()]);
 	}
-	
+
 	public void findAndAddClassesInPackage(String basePackage,
 			String filePath) throws ClassNotFoundException {
 
-		File dir = new File(basePackage);
+		File dir = new File(filePath);
 		if (!dir.exists() || !dir.isDirectory()) {
 			// log.warn("用户定义包名 " + packageName + " 下没有任何文件");   
 			return;
@@ -115,6 +114,10 @@ public class ComponentScanBean {
 		} catch (MalformedURLException ex) {
 			return originalUrl;
 		}
+	}
+
+	public static void main(String[] args) {
+
 	}
 
 }
