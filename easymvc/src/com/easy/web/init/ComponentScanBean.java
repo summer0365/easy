@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.easy.holder.BeanHolder;
 import com.easy.util.Assert;
+import com.easy.util.EasyResource;
 import com.easy.util.EasyUtils;
 import com.easy.util.StringUtils;
 import com.easy.web.annotation.EasyAction;
@@ -24,10 +25,14 @@ public class ComponentScanBean {
 
 	public void handle(String... basePackages) throws Exception {
 		synchronized (this) {
+
 			Assert.notNull(basePackages, "basePackages is null");
 			for (String basePackage : basePackages) {
-				String packageSearchPath = EasyUtils.convertClassNameToResourcePath(basePackage);
+				String packageSearchPath = EasyResource.CLASSPATH_ALL_URL_PREFIX
+						+ EasyUtils.convertClassNameToResourcePath(basePackage);
+
 				BeanHolder[] resBeanHolder = getResources(packageSearchPath);
+
 				for (BeanHolder bean : resBeanHolder) {
 					URL uri = bean.getUri();
 					// 得到协议的名称   
@@ -37,32 +42,17 @@ public class ComponentScanBean {
 						//("file类型的扫描");   
 						// 获取包的物理路径   
 						String filePath = URLDecoder.decode(uri.getFile(), "UTF-8");
-						findAndAddClassesInPackage(packageSearchPath, filePath);
+						findAndAddClassesInPackage(basePackage, filePath);
 					}
 				}
 			}
 		}
 	}
 
-	public BeanHolder[] getResources(String locationPattern) throws IOException {
-		Assert.notNull(locationPattern, "Location pattern must not be null");
-		Set<BeanHolder> beanHolder = new LinkedHashSet<BeanHolder>(16);
-		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		Enumeration<URL> dirs = classLoader.getResources(locationPattern);
-		while (dirs.hasMoreElements()) {
-			URL url = dirs.nextElement();
-			String protocol = url.getProtocol();
-			if ("file".equals(protocol)) {
-				beanHolder.add(new BeanHolder(getCleanedUrl(url, url.toString())));
-			}
-		}
-		return beanHolder.toArray(new BeanHolder[beanHolder.size()]);
-	}
-
-	public void findAndAddClassesInPackage(String basePackage,
+	public static void findAndAddClassesInPackage(String basePackage,
 			String filePath) throws ClassNotFoundException {
 
-		File dir = new File(filePath);
+		File dir = new File(basePackage);
 		if (!dir.exists() || !dir.isDirectory()) {
 			// log.warn("用户定义包名 " + packageName + " 下没有任何文件");   
 			return;
@@ -94,7 +84,7 @@ public class ComponentScanBean {
 							if (StringUtils.isEmpty(ea.path())) {
 								beanholder = new BeanHolder();
 								beanholder.setClassz(classz);
-								beanholder.setBeanNames(basePackage + "." + fileName);
+								beanholder.setBeanName(basePackage + "." + fileName);
 								beanholder.setMethodName(method.getName());
 								holder.put(ea.path(), beanholder);
 							}
@@ -107,17 +97,28 @@ public class ComponentScanBean {
 		}
 	}
 
-	private static URL getCleanedUrl(URL originalUrl,
+	public BeanHolder[] getResources(String locationPattern) throws IOException {
+		Assert.notNull(locationPattern, "Location pattern must not be null");
+		Set<BeanHolder> beanHolder = new LinkedHashSet<BeanHolder>(16);
+		if (locationPattern.startsWith(EasyResource.CLASSPATH_ALL_URL_PREFIX)) {
+			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+			Enumeration<URL> dirs = classLoader.getResources(locationPattern);
+
+			while (dirs.hasMoreElements()) {
+				beanHolder.add(new BeanHolder(getCleanedUrl(dirs.nextElement(), dirs.nextElement()
+						.toString())));
+			}
+		}
+		return beanHolder.toArray(new BeanHolder[beanHolder.size()]);
+	}
+
+	private URL getCleanedUrl(URL originalUrl,
 			String originalPath) {
 		try {
 			return new URL(StringUtils.cleanPath(originalPath));
 		} catch (MalformedURLException ex) {
 			return originalUrl;
 		}
-	}
-
-	public static void main(String[] args) {
-
 	}
 
 }

@@ -6,7 +6,7 @@ import com.easy.web.service.BeanElement;
 
 public class BeanHolder implements BeanElement {
 
-	public String beanNames;
+	public String beanName;
 	
 	public URL uri;
 	
@@ -27,12 +27,12 @@ public class BeanHolder implements BeanElement {
 		return null;
 	}
 
-	public String getBeanNames() {
-		return beanNames;
+	public String getBeanName() {
+		return beanName;
 	}
 
-	public void setBeanNames(String beanNames) {
-		this.beanNames = beanNames;
+	public void setBeanName(String beanNames) {
+		this.beanName = beanNames;
 	}
 
 	public URL getUri() {
