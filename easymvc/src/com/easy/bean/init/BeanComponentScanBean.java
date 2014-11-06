@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.easy.holder.BeanHolder;
+import com.easy.init.BaseComponentScanBean;
 import com.easy.init.IComponentScanBean;
 import com.easy.util.Assert;
 import com.easy.util.EasyResource;
@@ -20,7 +21,7 @@ import com.easy.util.EasyUtils;
 import com.easy.util.StringUtils;
 import com.easy.web.annotation.EasyAction;
 
-public class BeanComponentScanBean implements IComponentScanBean {
+public class BeanComponentScanBean extends BaseComponentScanBean implements IComponentScanBean {
 
     public static Map<String, BeanHolder> holder = new ConcurrentHashMap<String, BeanHolder>();
 
