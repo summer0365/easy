@@ -7,9 +7,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.easy.bean.init.BeanComponentScanBean;
 import com.easy.holder.BeanHolder;
+import com.easy.init.IComponentScanBean;
 import com.easy.web.annotation.MakeAction;
-import com.easy.web.init.ComponentScanBean;
+import com.easy.web.init.MvcComponentScanBean;
 
 public class EasyServlet extends HttpServlet {
 
@@ -36,9 +38,10 @@ public class EasyServlet extends HttpServlet {
     public final void init() {
 
         String basePackages = (String) getServletContext().getAttribute("easyaction");
-        ComponentScanBean sc = new ComponentScanBean();
+        IComponentScanBean mvcsc = new MvcComponentScanBean();
+        IComponentScanBean beansc = new BeanComponentScanBean();
         try {
-            sc.handle(basePackages);
+            mvcsc.handle(basePackages);
         } catch(Exception e) {
             e.printStackTrace();
         }

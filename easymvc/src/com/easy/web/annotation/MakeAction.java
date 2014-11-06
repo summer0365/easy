@@ -7,13 +7,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.easy.holder.BeanHolder;
-import com.easy.web.init.ComponentScanBean;
+import com.easy.web.init.MvcComponentScanBean;
 
 public class MakeAction {
 
     public BeanHolder creatAction(HttpServletRequest request) {
         String servletPath = request.getServletPath();
-        Map<String, BeanHolder> holderMap = ComponentScanBean.holder;
+        Map<String, BeanHolder> holderMap = MvcComponentScanBean.holder;
         BeanHolder actionHandleObj = holderMap.get(servletPath);
         return actionHandleObj;
     }
