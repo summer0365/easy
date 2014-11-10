@@ -30,14 +30,14 @@ public class EasyServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        BeanHolder holder = makeAction.creatAction(request);
-        makeAction.callAction(request, response, holder);
+//        BeanHolder holder = makeAction.creatAction(request);
+//        makeAction.callAction(request, response, holder);
 
     }
 
     public final void init() {
-        String actionPackages = (String) getServletContext().getAttribute("easyaction");
-        String beanPackages = (String) getServletContext().getAttribute("easybean");
+        String actionPackages = (String) getServletContext().getInitParameter("easyaction");
+        String beanPackages = (String) getServletContext().getInitParameter("easybean");
 
         IComponentScanBean mvcsc = new MvcComponentScanBean();
         IComponentScanBean beansc = new BeanComponentScanBean();
