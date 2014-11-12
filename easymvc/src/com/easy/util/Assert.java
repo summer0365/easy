@@ -1,8 +1,6 @@
 /*** Eclipse Class Decompiler plugin, copyright (c) 2012 Chao Chen (cnfree2000@hotmail.com) ***/
 package com.easy.util;
 
-import java.util.Collection;
-import java.util.Map;
 
 public abstract class Assert {
 	public static void isTrue(boolean expression,
