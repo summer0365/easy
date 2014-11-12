@@ -37,15 +37,13 @@ public class MakeAction {
             LogUtil.error("holder is null!");
             return;
         }
-        Object action = null;
         try {
             String actionClassName = holder.getBeanName();
             String methodName = holder.getMethodName();
-            Class<?> actionClass = Class.forName(actionClassName);
-            action = actionClass.newInstance();
-            Method method = action.getClass().getMethod(methodName, HttpServletRequest.class,
+            Object actionClass = Class.forName(actionClassName).newInstance();
+            Method method = actionClass.getClass().getMethod(methodName, HttpServletRequest.class,
                     HttpServletResponse.class);
-            method.invoke(action, request, response);
+            method.invoke(actionClass, request, response);
         } catch(Exception e) {
             e.printStackTrace();
 
