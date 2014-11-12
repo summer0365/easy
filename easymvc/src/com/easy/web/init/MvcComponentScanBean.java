@@ -32,9 +32,7 @@ public class MvcComponentScanBean extends BaseComponentScanBean implements IComp
             for (String basePackage : basePackages) {
                 String packageSearchPath = EasyResource.CLASSPATH_ALL_URL_PREFIX
                         + EasyUtils.convertClassNameToResourcePath(basePackage);
-
                 BeanHolder[] resBeanHolder = getResources(packageSearchPath);
-
                 for (BeanHolder bean : resBeanHolder) {
                     URL uri = bean.getUri();
                     // 得到协议的名称
@@ -104,7 +102,8 @@ public class MvcComponentScanBean extends BaseComponentScanBean implements IComp
         Set<BeanHolder> beanHolder = new LinkedHashSet<BeanHolder>(16);
         if (locationPattern.startsWith(EasyResource.CLASSPATH_ALL_URL_PREFIX)) {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            Enumeration<URL> dirs = classLoader.getResources(locationPattern);
+            Enumeration<URL> dirs = classLoader.getResources(locationPattern.replace(
+                    EasyResource.CLASSPATH_ALL_URL_PREFIX, ""));
 
             while (dirs.hasMoreElements()) {
                 beanHolder.add(new BeanHolder(getCleanedUrl(dirs.nextElement(), dirs.nextElement()
