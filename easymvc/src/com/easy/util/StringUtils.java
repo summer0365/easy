@@ -152,10 +152,6 @@ public abstract class StringUtils {
 		return ((str != null) && (str.length() > 0));
 	}
 
-	public static boolean hasLength(String str) {
-		return hasLength(str);
-	}
-
 	public static boolean hasText(CharSequence str) {
 		if (!(hasLength(str))) {
 			return false;

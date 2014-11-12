@@ -29,9 +29,8 @@ public class EasyServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-//        BeanHolder holder = makeAction.creatAction(request);
-//        makeAction.callAction(request, response, holder);
+        BeanHolder holder = makeAction.creatAction(request);
+        makeAction.callAction(request, response, holder);
 
     }
 
