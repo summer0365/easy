@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/"
+	debug="false">
+
+
+	<appender name="myConsole"
+		class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="[%d{dd HH:mm:ss,SSS\} %-5p] [threadid:%t] %c [line:%L] - %m%n" />
+		</layout>
+	</appender>
+	<!-- 输出到日志文件  -->
+	<appender name="proxyAppender"
+		class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="../logs/calendar.log" />
+		<param name="Append" value="true" />
+		<param name="MaxFileSize" value="5KB" />
+		<param name="MaxBackupIndex" value="2" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%c %d{ISO8601}-- %p -- %m%n" />
+		</layout>
+	</appender>
+	<root>
+		<level value="debug" />
+		<appender-ref ref="myConsole" />
+	</root>
+	<logger name="com.google.code">
+		<level value="INFO" />
+		<appender-ref ref="myConsole" />
+	</logger>
+	<logger name="net.rubyeye">
+		<level value="INFO" />
+		<appender-ref ref="myConsole" />
+	</logger>
+	<logger name="org.logicalcobwebs">
+		<level value="INFO" />
+		<appender-ref ref="myConsole" />
+	</logger>
+</log4j:configuration>

@@ -106,8 +106,8 @@ public class MvcComponentScanBean extends BaseComponentScanBean implements IComp
                     EasyResource.CLASSPATH_ALL_URL_PREFIX, ""));
 
             while (dirs.hasMoreElements()) {
-                beanHolder.add(new BeanHolder(getCleanedUrl(dirs.nextElement(), dirs.nextElement()
-                        .toString())));
+                URL originalUrl = dirs.nextElement();
+                beanHolder.add(new BeanHolder(getCleanedUrl(originalUrl, originalUrl.toString())));
             }
         }
         return beanHolder.toArray(new BeanHolder[beanHolder.size()]);
