@@ -7,10 +7,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.easy.holder.BeanHolder;
 import com.easy.init.BaseComponentScanBean;
@@ -23,7 +23,7 @@ import com.easy.web.annotation.EasyAction;
 
 public class MvcComponentScanBean extends BaseComponentScanBean implements IComponentScanBean {
 
-    public static Map<String, BeanHolder> holder = new ConcurrentHashMap<String, BeanHolder>();
+    public static Map<String, BeanHolder> holder = new HashMap<String, BeanHolder>();
 
     public void handle(String... basePackages) throws Exception {
         synchronized (this) {
@@ -52,7 +52,7 @@ public class MvcComponentScanBean extends BaseComponentScanBean implements IComp
     public static void findAndAddClassesInPackage(String basePackage, String filePath)
             throws ClassNotFoundException {
 
-        File dir = new File(basePackage);
+        File dir = new File(filePath);
         if (!dir.exists() || !dir.isDirectory()) {
             // log.warn("用户定义包名 " + packageName + " 下没有任何文件");
             return;
@@ -74,6 +74,7 @@ public class MvcComponentScanBean extends BaseComponentScanBean implements IComp
             } else {
                 String fileName = file.getName();
                 if (fileName.endsWith(".class")) {
+                    fileName = fileName.substring(0, fileName.lastIndexOf("."));
                     Class<?> classz = Class.forName(basePackage + "." + fileName);
                     Method[] methods = classz.getDeclaredMethods();
                     for (Method method : methods) {
@@ -81,7 +82,7 @@ public class MvcComponentScanBean extends BaseComponentScanBean implements IComp
                         // ③获取方法上所标注的注解对象
                         EasyAction ea = method.getAnnotation(EasyAction.class);
                         if (ea != null) {
-                            if (StringUtils.isEmpty(ea.path())) {
+                            if (!StringUtils.isEmpty(ea.path())) {
                                 beanholder = new BeanHolder();
                                 beanholder.setClassz(classz);
                                 beanholder.setBeanName(basePackage + "." + fileName);

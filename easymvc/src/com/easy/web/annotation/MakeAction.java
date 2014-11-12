@@ -1,7 +1,6 @@
 package com.easy.web.annotation;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,15 +20,14 @@ public class MakeAction {
         String servletPath = request.getRequestURI();
 
         if (!StringUtils.isEmpty(projectName) && isSet) {
-            servletPath.replace(projectName, "");
+            servletPath = servletPath.replace(projectName, "");
         } else {
             setProjectName(request.getContextPath());
             if (!StringUtils.isEmpty(projectName)) {
-                servletPath.replace(projectName, "");
+                servletPath = servletPath.replace(projectName, "");
             }
         }
-        Map<String, BeanHolder> holderMap = MvcComponentScanBean.holder;
-        BeanHolder actionHandleObj = holderMap.get(servletPath);
+        BeanHolder actionHandleObj = MvcComponentScanBean.holder.get(servletPath);
         return actionHandleObj;
     }
 
@@ -39,13 +37,15 @@ public class MakeAction {
             LogUtil.error("holder is null!");
             return;
         }
+        Object action = null;
         try {
             String actionClassName = holder.getBeanName();
             String methodName = holder.getMethodName();
             Class<?> actionClass = Class.forName(actionClassName);
-            Method method = actionClass.getClass().getMethod(methodName, HttpServletRequest.class,
+            action = actionClass.newInstance();
+            Method method = action.getClass().getMethod(methodName, HttpServletRequest.class,
                     HttpServletResponse.class);
-            method.invoke(actionClass, request, response);
+            method.invoke(action, request, response);
         } catch(Exception e) {
             e.printStackTrace();
 
