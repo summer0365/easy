@@ -1,16 +1,11 @@
 package com.easy.web.init;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.easy.holder.BeanHolder;
 import com.easy.init.BaseComponentScanBean;
@@ -95,30 +90,6 @@ public class MvcComponentScanBean extends BaseComponentScanBean implements IComp
                     continue;
                 }
             }
-        }
-    }
-
-    public BeanHolder[] getResources(String locationPattern) throws IOException {
-        Assert.notNull(locationPattern, "Location pattern must not be null");
-        Set<BeanHolder> beanHolder = new LinkedHashSet<BeanHolder>(16);
-        if (locationPattern.startsWith(EasyResource.CLASSPATH_ALL_URL_PREFIX)) {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            Enumeration<URL> dirs = classLoader.getResources(locationPattern.replace(
-                    EasyResource.CLASSPATH_ALL_URL_PREFIX, ""));
-
-            while (dirs.hasMoreElements()) {
-                URL originalUrl = dirs.nextElement();
-                beanHolder.add(new BeanHolder(getCleanedUrl(originalUrl, originalUrl.toString())));
-            }
-        }
-        return beanHolder.toArray(new BeanHolder[beanHolder.size()]);
-    }
-
-    private URL getCleanedUrl(URL originalUrl, String originalPath) {
-        try {
-            return new URL(StringUtils.cleanPath(originalPath));
-        } catch(MalformedURLException ex) {
-            return originalUrl;
         }
     }
 

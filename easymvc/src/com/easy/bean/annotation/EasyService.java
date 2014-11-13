@@ -2,6 +2,6 @@ package com.easy.bean.annotation;
 
 public @interface EasyService {
 
-    String value() default "";
+    String name() default "";
     
 }

@@ -1,17 +1,13 @@
 package com.easy.bean.init;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.easy.bean.annotation.EasyService;
 import com.easy.holder.BeanHolder;
 import com.easy.init.BaseComponentScanBean;
 import com.easy.init.IComponentScanBean;
@@ -19,11 +15,10 @@ import com.easy.util.Assert;
 import com.easy.util.EasyResource;
 import com.easy.util.EasyUtils;
 import com.easy.util.StringUtils;
-import com.easy.web.annotation.EasyAction;
 
 public class BeanComponentScanBean extends BaseComponentScanBean implements IComponentScanBean {
 
-    public static Map<String, BeanHolder> holder = new ConcurrentHashMap<String, BeanHolder>();
+    public static Map<String, BeanHolder> beanHolder = new ConcurrentHashMap<String, BeanHolder>();
 
     public void handle(String... basePackages) throws Exception {
         synchronized (this) {
@@ -32,9 +27,7 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
             for (String basePackage : basePackages) {
                 String packageSearchPath = EasyResource.CLASSPATH_ALL_URL_PREFIX
                         + EasyUtils.convertClassNameToResourcePath(basePackage);
-
                 BeanHolder[] resBeanHolder = getResources(packageSearchPath);
-
                 for (BeanHolder bean : resBeanHolder) {
                     URL uri = bean.getUri();
                     // 得到协议的名称
@@ -54,7 +47,7 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
     public static void findAndAddClassesInPackage(String basePackage, String filePath)
             throws ClassNotFoundException {
 
-        File dir = new File(basePackage);
+        File dir = new File(filePath);
         if (!dir.exists() || !dir.isDirectory()) {
             // log.warn("用户定义包名 " + packageName + " 下没有任何文件");
             return;
@@ -76,19 +69,20 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
             } else {
                 String fileName = file.getName();
                 if (fileName.endsWith(".class")) {
+                    fileName = fileName.substring(0, fileName.lastIndexOf("."));
                     Class<?> classz = Class.forName(basePackage + "." + fileName);
-                    Method[] methods = classz.getDeclaredMethods();
+                    Method[] methods = classz.getMethods();
                     for (Method method : methods) {
                         BeanHolder beanholder = null;
                         // ③获取方法上所标注的注解对象
-                        EasyAction ea = method.getAnnotation(EasyAction.class);
+                        EasyService ea = method.getAnnotation(EasyService.class);
                         if (ea != null) {
-                            if (StringUtils.isEmpty(ea.path())) {
+                            if (StringUtils.isEmpty(ea.name())) {
                                 beanholder = new BeanHolder();
                                 beanholder.setClassz(classz);
                                 beanholder.setBeanName(basePackage + "." + fileName);
                                 beanholder.setMethodName(method.getName());
-                                holder.put(ea.path(), beanholder);
+                                beanHolder.put(ea.name(), beanholder);
                             }
                         }
                     }
@@ -96,29 +90,6 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
                     continue;
                 }
             }
-        }
-    }
-
-    public BeanHolder[] getResources(String locationPattern) throws IOException {
-        Assert.notNull(locationPattern, "Location pattern must not be null");
-        Set<BeanHolder> beanHolder = new LinkedHashSet<BeanHolder>(16);
-        if (locationPattern.startsWith(EasyResource.CLASSPATH_ALL_URL_PREFIX)) {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            Enumeration<URL> dirs = classLoader.getResources(locationPattern);
-
-            while (dirs.hasMoreElements()) {
-                beanHolder.add(new BeanHolder(getCleanedUrl(dirs.nextElement(), dirs.nextElement()
-                        .toString())));
-            }
-        }
-        return beanHolder.toArray(new BeanHolder[beanHolder.size()]);
-    }
-
-    private URL getCleanedUrl(URL originalUrl, String originalPath) {
-        try {
-            return new URL(StringUtils.cleanPath(originalPath));
-        } catch(MalformedURLException ex) {
-            return originalUrl;
         }
     }
 
