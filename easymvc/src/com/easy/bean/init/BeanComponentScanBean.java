@@ -1,7 +1,6 @@
 package com.easy.bean.init;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Map;
@@ -71,20 +70,13 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
                 if (fileName.endsWith(".class")) {
                     fileName = fileName.substring(0, fileName.lastIndexOf("."));
                     Class<?> classz = Class.forName(basePackage + "." + fileName);
-                    Method[] methods = classz.getMethods();
-                    for (Method method : methods) {
-                        BeanHolder beanholder = null;
-                        // ③获取方法上所标注的注解对象
-                        EasyService ea = method.getAnnotation(EasyService.class);
-                        if (ea != null) {
-                            if (StringUtils.isEmpty(ea.name())) {
-                                beanholder = new BeanHolder();
-                                beanholder.setClassz(classz);
-                                beanholder.setBeanName(basePackage + "." + fileName);
-                                beanholder.setMethodName(method.getName());
-                                beanHolder.put(ea.name(), beanholder);
-                            }
-                        }
+                    boolean flag = classz.isAnnotationPresent(EasyService.class); 
+                    if(flag){
+                        EasyService easyService = classz.getAnnotation(EasyService.class);
+                        BeanHolder beanholder = new BeanHolder();
+                        beanholder.setBeanName(basePackage + "." + fileName);
+                        beanholder.setMethodName(easyService.name());
+                        beanHolder.put(easyService.name(), beanholder);
                     }
                 } else {
                     continue;
