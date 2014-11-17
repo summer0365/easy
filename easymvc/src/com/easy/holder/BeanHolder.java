@@ -10,7 +10,7 @@ public class BeanHolder implements BeanElement {
 	
 	public URL uri;
 	
-	public Class<?> classz;
+	public Object classz;
 	
 	public String methodName;
 	
@@ -43,14 +43,6 @@ public class BeanHolder implements BeanElement {
 		this.uri = uri;
 	}
 
-	public Class<?> getClassz() {
-		return classz;
-	}
-
-	public void setClassz(Class<?> classz) {
-		this.classz = classz;
-	}
-
 	public String getMethodName() {
 		return methodName;
 	}
@@ -58,5 +50,13 @@ public class BeanHolder implements BeanElement {
 	public void setMethodName(String methodName) {
 		this.methodName = methodName;
 	}
+
+    public Object getClassz() {
+        return classz;
+    }
+
+    public void setClassz(Object classz) {
+        this.classz = classz;
+    }
 
 }

@@ -44,7 +44,7 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
     }
 
     public static void findAndAddClassesInPackage(String basePackage, String filePath)
-            throws ClassNotFoundException {
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 
         File dir = new File(filePath);
         if (!dir.exists() || !dir.isDirectory()) {
@@ -76,8 +76,14 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
                         BeanHolder beanholder = new BeanHolder();
                         beanholder.setBeanName(basePackage + "." + fileName);
                         beanholder.setMethodName(easyService.name());
+                        beanholder.setClassz(classz.newInstance());
                         beanHolder.put(easyService.name(), beanholder);
                     }
+                    
+                    classz.getDeclaredFields();
+                    
+                    
+                    
                 } else {
                     continue;
                 }

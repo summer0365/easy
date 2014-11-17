@@ -79,7 +79,11 @@ public class MvcComponentScanBean extends BaseComponentScanBean implements IComp
                         if (ea != null) {
                             if (!StringUtils.isEmpty(ea.path())) {
                                 beanholder = new BeanHolder();
-                                beanholder.setClassz(classz);
+                                try {
+                                    beanholder.setClassz(classz.newInstance());
+                                } catch(Exception e) {
+                                    e.printStackTrace();
+                                }
                                 beanholder.setBeanName(basePackage + "." + fileName);
                                 beanholder.setMethodName(method.getName());
                                 holder.put(ea.path(), beanholder);

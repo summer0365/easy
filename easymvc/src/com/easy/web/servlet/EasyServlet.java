@@ -41,8 +41,8 @@ public class EasyServlet extends HttpServlet {
         IComponentScanBean mvcsc = new MvcComponentScanBean();
         IComponentScanBean beansc = new BeanComponentScanBean();
         try {
-            mvcsc.handle(actionPackages);
             beansc.handle(beanPackages);
+            mvcsc.handle(actionPackages);
         } catch(Exception e) {
             e.printStackTrace();
         }
