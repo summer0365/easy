@@ -1,12 +1,14 @@
 package com.easy.bean.init;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.easy.bean.annotation.EasyService;
+import com.easy.bean.annotation.Inject;
 import com.easy.holder.BeanHolder;
 import com.easy.init.BaseComponentScanBean;
 import com.easy.init.IComponentScanBean;
@@ -70,8 +72,8 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
                 if (fileName.endsWith(".class")) {
                     fileName = fileName.substring(0, fileName.lastIndexOf("."));
                     Class<?> classz = Class.forName(basePackage + "." + fileName);
-                    boolean flag = classz.isAnnotationPresent(EasyService.class); 
-                    if(flag){
+                    boolean flag = classz.isAnnotationPresent(EasyService.class);
+                    if (flag) {
                         EasyService easyService = classz.getAnnotation(EasyService.class);
                         BeanHolder beanholder = new BeanHolder();
                         beanholder.setBeanName(basePackage + "." + fileName);
@@ -79,8 +81,16 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
                         beanholder.setClassz(classz.newInstance());
                         beanHolder.put(easyService.name(), beanholder);
                     }
-                    
-                    classz.getDeclaredFields();
+
+                    Field[] fields = classz.getDeclaredFields();
+                    if (fields != null && fields.length > 0) {
+                        for (Field field : fields) {
+                            boolean fieldFlag = field.isAnnotationPresent(Inject.class);
+                            if (fieldFlag) {
+                               
+                            }
+                        }
+                    }
                     
                     
                     
@@ -90,5 +100,4 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
             }
         }
     }
-
 }
