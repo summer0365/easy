@@ -642,6 +642,13 @@ public abstract class StringUtils {
 			String delimiters) {
 		return tokenizeToStringArray(str, delimiters, true, true);
 	}
+	
+	public static String firstCodeUpper(String str){
+		if(!isEmpty(str)){
+			str = str.substring(0,1).toUpperCase() + str.substring(1);
+		}
+		return str;
+	}
 
 	public static String[] tokenizeToStringArray(String str,
 			String delimiters,

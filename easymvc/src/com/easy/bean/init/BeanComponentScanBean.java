@@ -2,8 +2,11 @@ package com.easy.bean.init;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,7 +22,7 @@ import com.easy.util.StringUtils;
 
 public class BeanComponentScanBean extends BaseComponentScanBean implements IComponentScanBean {
 
-    public static Map<String, BeanHolder> beanHolder = new ConcurrentHashMap<String, BeanHolder>();
+    private static List<BeanHolder> beanList = new ArrayList<BeanHolder>();
 
     public void handle(String... basePackages) throws Exception {
         synchronized (this) {
@@ -31,17 +34,20 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
                 BeanHolder[] resBeanHolder = getResources(packageSearchPath);
                 for (BeanHolder bean : resBeanHolder) {
                     URL uri = bean.getUri();
-                    // å¾—åˆ°åè®®çš„åç§°
+                    // µÃµ½Ð­ÒéµÄÃû³Æ
                     String protocol = bean.getUri().getProtocol();
-                    // å¦‚æžœæ˜¯ä»¥æ–‡ä»¶çš„å½¢å¼ä¿å­˜åœ¨æœåŠ¡å™¨ä¸Š
+                    // Èç¹ûÊÇÒÔÎÄ¼þµÄÐÎÊ½±£´æÔÚ·þÎñÆ÷ÉÏ
                     if ("file".equals(protocol)) {
-                        // ("fileç±»åž‹çš„æ‰«æ");
-                        // èŽ·å–åŒ…çš„ç‰©ç†è·¯å¾„
+                        // ("fileÀàÐÍµÄÉ¨Ãè");
+                        // »ñÈ¡°üµÄÎïÀíÂ·¾¶
                         String filePath = URLDecoder.decode(uri.getFile(), "UTF-8");
                         findAndAddClassesInPackage(basePackage, filePath);
                     }
                 }
             }
+
+            setFiledValue(beanList);
+
         }
     }
 
@@ -50,15 +56,15 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
 
         File dir = new File(filePath);
         if (!dir.exists() || !dir.isDirectory()) {
-            // log.warn("ç”¨æˆ·å®šä¹‰åŒ…å " + packageName + " ä¸‹æ²¡æœ‰ä»»ä½•æ–‡ä»¶");
+            // log.warn("ÓÃ»§¶¨Òå°üÃû " + packageName + " ÏÂÃ»ÓÐÈÎºÎÎÄ¼þ");
             return;
         }
 
         File[] files = dir.listFiles();
 
-        // å¾ªçŽ¯æ‰€æœ‰æ–‡ä»¶
+        // Ñ­»·ËùÓÐÎÄ¼þ
         for (File file : files) {
-            // å¦‚æžœæ˜¯ç›®å½• åˆ™ç»§ç»­æ‰«æ
+            // Èç¹ûÊÇÄ¿Â¼ Ôò¼ÌÐøÉ¨Ãè
             if (file.isDirectory()) {
                 StringBuilder packeageNameTemp = new StringBuilder();
                 if (StringUtils.isEmpty(basePackage)) {
@@ -79,23 +85,41 @@ public class BeanComponentScanBean extends BaseComponentScanBean implements ICom
                         beanholder.setBeanName(basePackage + "." + fileName);
                         beanholder.setMethodName(easyService.name());
                         beanholder.setClassz(classz.newInstance());
-                        beanHolder.put(easyService.name(), beanholder);
+                        EasyBeanFactory.beanHolder.put(easyService.name(), beanholder);
+                        beanList.add(beanholder);
                     }
 
-                    Field[] fields = classz.getDeclaredFields();
-                    if (fields != null && fields.length > 0) {
-                        for (Field field : fields) {
-                            boolean fieldFlag = field.isAnnotationPresent(Inject.class);
-                            if (fieldFlag) {
-                               
-                            }
-                        }
-                    }
-                    
-                    
-                    
                 } else {
                     continue;
+                }
+            }
+        }
+    }
+
+    private void setFiledValue(List<BeanHolder> beanList) {
+        if (beanList != null && beanList.size() > 0) {
+            for (BeanHolder bean : beanList) {
+                Object classzInstance = bean.getClassz();
+                Field[] fields = classzInstance.getClass().getDeclaredFields();
+                if (fields != null && fields.length > 0) {
+                    for (Field field : fields) {
+                        boolean fieldFlag = field.isAnnotationPresent(Inject.class);
+                        if (fieldFlag) {
+                            try {
+                                Method method = classzInstance.getClass().getMethod(
+                                        "set" + StringUtils.firstCodeUpper(field.getName()),
+                                        field.getType());
+                                method.invoke(
+                                        classzInstance,
+                                        Class.forName(EasyBeanFactory.beanHolder.get(field.getName()).getBeanName())
+                                                .newInstance());
+                            } catch(Exception e) {
+                                e.printStackTrace();
+                            }
+                            bean.setClassz(classzInstance);
+                            EasyBeanFactory.beanHolder.put(bean.getMethodName(), bean);
+                        }
+                    }
                 }
             }
         }

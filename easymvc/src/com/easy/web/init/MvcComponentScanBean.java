@@ -7,6 +7,8 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.easy.bean.annotation.EasyService;
+import com.easy.bean.init.EasyBeanFactory;
 import com.easy.holder.BeanHolder;
 import com.easy.init.BaseComponentScanBean;
 import com.easy.init.IComponentScanBean;
@@ -30,12 +32,12 @@ public class MvcComponentScanBean extends BaseComponentScanBean implements IComp
                 BeanHolder[] resBeanHolder = getResources(packageSearchPath);
                 for (BeanHolder bean : resBeanHolder) {
                     URL uri = bean.getUri();
-                    // å¾—åˆ°åè®®çš„åç§°
+                    // µÃµ½Ğ­ÒéµÄÃû³Æ
                     String protocol = bean.getUri().getProtocol();
-                    // å¦‚æœæ˜¯ä»¥æ–‡ä»¶çš„å½¢å¼ä¿å­˜åœ¨æœåŠ¡å™¨ä¸Š
+                    // Èç¹ûÊÇÒÔÎÄ¼şµÄĞÎÊ½±£´æÔÚ·şÎñÆ÷ÉÏ
                     if ("file".equals(protocol)) {
-                        // ("fileç±»å‹çš„æ‰«æ");
-                        // è·å–åŒ…çš„ç‰©ç†è·¯å¾„
+                        // ("fileÀàĞÍµÄÉ¨Ãè");
+                        // »ñÈ¡°üµÄÎïÀíÂ·¾¶
                         String filePath = URLDecoder.decode(uri.getFile(), "UTF-8");
                         findAndAddClassesInPackage(basePackage, filePath);
                     }
@@ -49,15 +51,15 @@ public class MvcComponentScanBean extends BaseComponentScanBean implements IComp
 
         File dir = new File(filePath);
         if (!dir.exists() || !dir.isDirectory()) {
-            // log.warn("ç”¨æˆ·å®šä¹‰åŒ…å " + packageName + " ä¸‹æ²¡æœ‰ä»»ä½•æ–‡ä»¶");
+            // log.warn("ÓÃ»§¶¨Òå°üÃû " + packageName + " ÏÂÃ»ÓĞÈÎºÎÎÄ¼ş");
             return;
         }
 
         File[] files = dir.listFiles();
 
-        // å¾ªç¯æ‰€æœ‰æ–‡ä»¶
+        // Ñ­»·ËùÓĞÎÄ¼ş
         for (File file : files) {
-            // å¦‚æœæ˜¯ç›®å½• åˆ™ç»§ç»­æ‰«æ
+            // Èç¹ûÊÇÄ¿Â¼ Ôò¼ÌĞøÉ¨Ãè
             if (file.isDirectory()) {
                 StringBuilder packeageNameTemp = new StringBuilder();
                 if (StringUtils.isEmpty(basePackage)) {
@@ -71,19 +73,26 @@ public class MvcComponentScanBean extends BaseComponentScanBean implements IComp
                 if (fileName.endsWith(".class")) {
                     fileName = fileName.substring(0, fileName.lastIndexOf("."));
                     Class<?> classz = Class.forName(basePackage + "." + fileName);
+                    Object newclassz = null;
+                    if(classz.isAnnotationPresent(EasyService.class)){
+                        EasyService es = classz.getAnnotation(EasyService.class);
+                        newclassz = EasyBeanFactory.beanHolder.get(es.name()).getClassz();
+                    }else{
+                        try {
+                            newclassz = classz.newInstance();
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                     Method[] methods = classz.getDeclaredMethods();
                     for (Method method : methods) {
                         BeanHolder beanholder = null;
-                        // â‘¢è·å–æ–¹æ³•ä¸Šæ‰€æ ‡æ³¨çš„æ³¨è§£å¯¹è±¡
+                        // ¢Û»ñÈ¡·½·¨ÉÏËù±ê×¢µÄ×¢½â¶ÔÏó
                         EasyAction ea = method.getAnnotation(EasyAction.class);
                         if (ea != null) {
                             if (!StringUtils.isEmpty(ea.path())) {
                                 beanholder = new BeanHolder();
-                                try {
-                                    beanholder.setClassz(classz.newInstance());
-                                } catch(Exception e) {
-                                    e.printStackTrace();
-                                }
+                                beanholder.setClassz(newclassz);
                                 beanholder.setBeanName(basePackage + "." + fileName);
                                 beanholder.setMethodName(method.getName());
                                 holder.put(ea.path(), beanholder);

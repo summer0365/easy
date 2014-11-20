@@ -38,7 +38,6 @@ public class MakeAction {
             return;
         }
         try {
-           // String actionClassName = holder.getBeanName();
             String methodName = holder.getMethodName();
             Object actionClass = holder.getClassz();
             Method method = actionClass.getClass().getMethod(methodName, HttpServletRequest.class,
