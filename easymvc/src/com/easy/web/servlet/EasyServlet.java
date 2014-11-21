@@ -10,12 +10,13 @@ import javax.servlet.http.HttpServletResponse;
 import com.easy.bean.init.BeanComponentScanBean;
 import com.easy.holder.BeanHolder;
 import com.easy.init.IComponentScanBean;
-import com.easy.web.annotation.MakeAction;
+import com.easy.web.annotation.IMakeAction;
+import com.easy.web.annotation.MakeActionImpl;
 import com.easy.web.init.MvcComponentScanBean;
 
 public class EasyServlet extends HttpServlet {
 
-    private MakeAction makeAction = new MakeAction();
+    private static IMakeAction makeAction = new MakeActionImpl();
 
     /**
 	 * 
