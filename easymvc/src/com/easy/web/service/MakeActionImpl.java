@@ -1,4 +1,4 @@
-package com.easy.web.annotation;
+package com.easy.web.service;
 
 import java.lang.reflect.Method;
 
@@ -10,7 +10,7 @@ import com.easy.util.LogUtil;
 import com.easy.util.StringUtils;
 import com.easy.web.init.MvcComponentScanBean;
 
-public class MakeAction {
+public class MakeActionImpl implements IMakeAction{
 
     private static String projectName;
 
@@ -58,8 +58,8 @@ public class MakeAction {
             return;
         }
         isSet = true;
-        if (StringUtils.isEmpty(MakeAction.projectName) && !StringUtils.isEmpty(projectName)) {
-            MakeAction.projectName = projectName;
+        if (StringUtils.isEmpty(MakeActionImpl.projectName) && !StringUtils.isEmpty(projectName)) {
+            MakeActionImpl.projectName = projectName;
         }
     }
 

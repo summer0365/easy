@@ -10,9 +10,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.easy.bean.init.BeanComponentScanBean;
 import com.easy.holder.BeanHolder;
 import com.easy.init.IComponentScanBean;
-import com.easy.web.annotation.IMakeAction;
-import com.easy.web.annotation.MakeActionImpl;
 import com.easy.web.init.MvcComponentScanBean;
+import com.easy.web.service.IMakeAction;
+import com.easy.web.service.MakeActionImpl;
 
 public class EasyServlet extends HttpServlet {
 
