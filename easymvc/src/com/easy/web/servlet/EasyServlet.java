@@ -32,7 +32,6 @@ public class EasyServlet extends HttpServlet {
             throws ServletException, IOException {
         BeanHolder holder = makeAction.creatAction(request);
         makeAction.callAction(request, response, holder);
-
     }
 
     public final void init() {
